@@ -4,15 +4,15 @@ export function highlightSquaresIdFromPiece({ positionsRecord, columns, rows, en
 		case 'knight':
 			return knightPossibleMoves({ positionsRecord: positionsRecord, rows, columns, pieceActualPosition: entry![0], squad: entry![1]!.squad });
 		case 'king':
-			break;
+			return kingPossibleMoves({ positionsRecord: positionsRecord, rows, columns, pieceActualPosition: entry![0], squad: entry![1]!.squad });
 		case 'queen':
-			break;
+			return queenPossibleMoves({ positionsRecord: positionsRecord, rows, columns, pieceActualPosition: entry![0], squad: entry![1]!.squad });
 		case 'bishop':
-			break;
+			return bishopPossibleMoves({ positionsRecord: positionsRecord, rows, columns, pieceActualPosition: entry![0], squad: entry![1]!.squad });
 		case 'pawn':
 			break;
 		case 'rook':
-			break;
+			return rookPossibleMoves({ positionsRecord: positionsRecord, rows, columns, pieceActualPosition: entry![0], squad: entry![1]!.squad });
 		default:
 			return null;
 	}
@@ -43,6 +43,78 @@ function knightPossibleMoves({ rows, columns, positionsRecord: positionsTable, p
 	highlightArray.push(columns[iC + -1] + rows[iR + -2]);
 	highlightArray.push(columns[iC + -2] + rows[iR + 1]);
 	highlightArray.push(columns[iC + -2] + rows[iR + -1]);
-	const roReturn = highlightArray.filter(value => value && positionsTable[value]?.squad != squad && !value.includes('undefined'));
-	return roReturn;
+	const toReturn = highlightArray.filter(value => value && positionsTable[value]?.squad != squad && !value.includes('undefined'));
+	return toReturn;
+}
+
+function kingPossibleMoves({ rows, columns, positionsRecord: positionsTable, pieceActualPosition, squad }: movesData) {
+	const iC = Number(columns.findIndex(value => value === pieceActualPosition.split('')[0]));
+	const iR = Number(rows.findIndex(value => value === pieceActualPosition.split('')[1]));
+	const highlightArray: string[] = [];
+	[1, 0, -1].forEach(valueC => {
+		[1, 0, -1].forEach(valueR => {
+			highlightArray.push(columns[iC + valueC] + rows[iR + valueR]);
+		});
+	});
+	const toReturn = highlightArray.filter(value => value && positionsTable[value]?.squad != squad && !value.includes('undefined'));
+	return toReturn;
+}
+
+function rookPossibleMoves({ rows, columns, positionsRecord: positionsTable, pieceActualPosition, squad }: movesData) {
+	const iC = Number(columns.findIndex(value => value === pieceActualPosition.split('')[0]));
+	const iR = Number(rows.findIndex(value => value === pieceActualPosition.split('')[1]));
+	const highlightArray = [];
+	for (let i = iC + 1; columns[i]; i++) {
+		highlightArray.push(columns[i] + rows[iR]);
+		if (positionsTable[columns[i] + rows[iR]]) { break; }
+	}
+	for (let i = iC - 1; columns[i]; i--) {
+		highlightArray.push(columns[i] + rows[iR]);
+		if (positionsTable[columns[i] + rows[iR]]) { break; }
+	}
+	for (let i = iR + 1; rows[i]; i++) {
+		highlightArray.push(columns[iC] + rows[i]);
+		if (positionsTable[columns[iC] + rows[i]]) { break; }
+	}
+	for (let i = iR - 1; rows[i]; i--) {
+		highlightArray.push(columns[iC] + rows[i]);
+		if (positionsTable[columns[iC] + rows[i]]) { break; }
+	}
+	const toReturn = highlightArray.filter(value => value && positionsTable[value]?.squad != squad && !value.includes('undefined'));
+	return toReturn;
+}
+
+function bishopPossibleMoves({ rows, columns, positionsRecord: positionsTable, pieceActualPosition, squad }: movesData) {
+	const iC = Number(columns.findIndex(value => value === pieceActualPosition.split('')[0]));
+	const iR = Number(rows.findIndex(value => value === pieceActualPosition.split('')[1]));
+	const highlightArray = [];
+	for (let i = 1; columns[iC + i] && rows[iR + i]; i++) {
+		highlightArray.push(columns[iC + i] + rows[iR + i]);
+		if (positionsTable[columns[iC + i] + rows[iR + i]]) { break; }
+	}
+	for (let i = 1; columns[iC - i] && rows[iR + i]; i++) {
+		highlightArray.push(columns[iC - i] + rows[iR + i]);
+		if (positionsTable[columns[iC - i] + rows[iR + i]]) { break; }
+	}
+	for (let i = 1; columns[iC - i] && rows[iR - i]; i++) {
+		highlightArray.push(columns[iC - i] + rows[iR - i]);
+		if (positionsTable[columns[iC - i] + rows[iR - i]]) { break; }
+	}
+	for (let i = 1; columns[iC + i] && rows[iR - i]; i++) {
+		highlightArray.push(columns[iC + i] + rows[iR - i]);
+		if (positionsTable[columns[iC + i] + rows[iR - i]]) { break; }
+	}
+	const toReturn = highlightArray.filter(value => value && positionsTable[value]?.squad != squad && !value.includes('undefined'));
+	return toReturn;
+}
+
+function queenPossibleMoves({ rows, columns, positionsRecord: positionsTable, pieceActualPosition, squad }: movesData) {
+	const x = [...rookPossibleMoves({ positionsRecord: positionsTable, rows, columns, pieceActualPosition, squad }), ...bishopPossibleMoves({ positionsRecord: positionsTable, rows, columns, pieceActualPosition, squad })];
+	return x;
+}
+
+function pawnPossibleMoves({ rows, columns, positionsRecord: positionsTable, pieceActualPosition, squad }: movesData) {
+	const iC = Number(columns.findIndex(value => value === pieceActualPosition.split('')[0]));
+	const iR = Number(rows.findIndex(value => value === pieceActualPosition.split('')[1]));
+	const highlightArray = [];
 }
