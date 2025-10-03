@@ -142,7 +142,7 @@ function pawnPossibleMoves({ rows, columns, positionsRecord: positionsTable, pie
 		if (positionsTable[columns[iC + 1] + rows[iR - 1]] && positionsTable[columns[iC + 1] + rows[iR - 1]]?.squad != squad) {
 			toReturn[columns[iC + 1] + rows[iR - 1]] = true;
 		}
-		if (positionsTable[columns[iC + 1] + rows[iR - 1]] && positionsTable[columns[iC - 1] + rows[iR - 1]]?.squad != squad) {
+		if (positionsTable[columns[iC - 1] + rows[iR - 1]] && positionsTable[columns[iC - 1] + rows[iR - 1]]?.squad != squad) {
 			toReturn[columns[iC - 1] + rows[iR - 1]] = true;
 		}
 	}
@@ -156,7 +156,7 @@ function pawnPossibleMoves({ rows, columns, positionsRecord: positionsTable, pie
 		if (positionsTable[columns[iC + 1] + rows[iR + 1]] && positionsTable[columns[iC + 1] + rows[iR + 1]]?.squad != squad) {
 			toReturn[columns[iC + 1] + rows[iR - 1]] = true;
 		}
-		if (positionsTable[columns[iC + 1] + rows[iR + 1]] && positionsTable[columns[iC - 1] + rows[iR + 1]]?.squad != squad) {
+		if (positionsTable[columns[iC - 1] + rows[iR + 1]] && positionsTable[columns[iC - 1] + rows[iR + 1]]?.squad != squad) {
 			toReturn[columns[iC - 1] + rows[iR + 1]] = true;
 		}
 	}
