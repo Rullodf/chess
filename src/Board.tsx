@@ -93,7 +93,7 @@ export function Board({ preset, theme, columns, rows, player1Squad }: board) {
 
 	function handleDragStart(event: DragStartEvent) {
 		const entry = Object.entries(positionsRecord).find(([_, value]) => value?.id == event.active.id);
-		setValidMoves(highlightSquaresIdFromPiece({ columns, entry, positionsRecord, rows, player1Squad }));
+		setValidMoves(highlightSquaresIdFromPiece({ columns, entry, positionsRecord, rows, player1Squad, turn: entry![1]!.squad }));
 		setActiveId(event.active.id as string);
 	}
 }

@@ -1,0 +1,6 @@
+-Check della sicurezza del re avversario a ogni turno
+-Promozione dei pedoni
+-Forzatura delle mosse se il re è sotto scacco
+-En passant
+-Arrocco
+-Implementazione turni
