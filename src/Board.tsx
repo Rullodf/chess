@@ -1,8 +1,8 @@
-import { DndContext, DragOverlay, pointerWithin, type DragEndEvent, type DragStartEvent } from '@dnd-kit/core';
+import { DndContext, DragOverlay, PointerSensor, pointerWithin, useSensor, useSensors, type DragEndEvent, type DragStartEvent } from '@dnd-kit/core';
 import { snapCenterToCursor } from '@dnd-kit/modifiers';
 import { Square } from './Square';
 import { Piece } from './Piece';
-import { useState } from 'react';
+import React, { useState, type MouseEventHandler } from 'react';
 import { highlightSquaresIdFromPiece } from './GameRules';
 
 export function Board({ preset, theme, columns, rows, player1Squad }: board) {
@@ -12,19 +12,29 @@ export function Board({ preset, theme, columns, rows, player1Squad }: board) {
 	const [positionsRecord, setPositionRecord] = useState(createPositionsRecord({ columns, rows, piecesSpecifics }) as Record<string, recordData | null>);
 	const [validMoves, setValidMoves] = useState({} as Record<string, true> | null);
 	const [activeId, setActiveId] = useState<string | null>();
+	const [chosenPieceId, setChosenPieceId] = useState<string | null>(null);
+	const sensors = useSensors(
+		useSensor(PointerSensor,
+			{
+				activationConstraint: {
+					distance: 3,
+				},
+			},
+		),
+	);
 
 	let i = 0;
 	i = 0;
 	return (
 		<>
-			<DndContext collisionDetection={pointerWithin} modifiers={[snapCenterToCursor]} onDragEnd={handleDragEnd} onDragStart={handleDragStart}>
+			<DndContext collisionDetection={pointerWithin} modifiers={[snapCenterToCursor]} sensors={sensors} onDragEnd={handleDragEnd} onDragStart={handleDragStart}>
 				<div className="board">
 					{rows.map(row => {
 						const rowDiv = (
 							<div key={row} id={row} className="row">
 								{columns.map(column => {
 									const square = (
-										<Square key={column + row} id={column + row} color={colors[colorIndex]} isAValidMove={validMoves?.[column + row]} isOccupied={!!positionsRecord[column + row]}>
+										<Square key={column + row} id={column + row} color={colors[colorIndex]} onClick={handleClickOnSquare} isAValidMove={validMoves?.[column + row]} isOccupied={!!positionsRecord[column + row]}>
 											{
 												positionsRecord &&
 												positionsRecord[column + row] &&
@@ -34,6 +44,8 @@ export function Board({ preset, theme, columns, rows, player1Squad }: board) {
 													id: positionsRecord[column + row]!.id,
 													pieceName: positionsRecord[column + row]!.pieceName,
 													hidden: !!(activeId) && positionsRecord[column + row]!.id == activeId,
+													onClick: handleClickOnPiece,
+													chosenPieceId: chosenPieceId,
 												})
 											}
 										</Square>
@@ -77,6 +89,23 @@ export function Board({ preset, theme, columns, rows, player1Squad }: board) {
 		const oldPosition = Object.entries(positionsRecord).find(([_, value]) => value?.id == event.active.id)?.[0];
 		const recordData = Object.entries(positionsRecord).find(([_, value]) => value?.id == event.active.id)?.[1];
 		const newPosition = event.over.id;
+		applyMove({ recordData, newPosition, oldPosition });
+	}
+
+	function handleDragStart(event: DragStartEvent) {
+		setActiveId(event.active.id as string);
+	}
+
+	function handleClickOnSquare(reactEvent: React.MouseEvent<HTMLDivElement>) {
+		const oldPosition = Object.entries(positionsRecord).find(([_, value]) => value?.id == chosenPieceId)?.[0];
+		const recordData = Object.entries(positionsRecord).find(([_, value]) => value?.id == chosenPieceId)?.[1];
+		const newPosition = reactEvent.currentTarget.id;
+		applyMove({ oldPosition, newPosition, recordData });
+		setValidMoves({});
+		setChosenPieceId(null);
+	}
+
+	function applyMove({ oldPosition, recordData, newPosition }) {
 		if (!recordData || !oldPosition) {
 			return;
 		}
@@ -91,10 +120,11 @@ export function Board({ preset, theme, columns, rows, player1Squad }: board) {
 		setValidMoves({});
 	}
 
-	function handleDragStart(event: DragStartEvent) {
-		const entry = Object.entries(positionsRecord).find(([_, value]) => value?.id == event.active.id);
+	function handleClickOnPiece(reactEvent: React.MouseEvent<HTMLButtonElement>) {
+		reactEvent.stopPropagation();
+		const entry = Object.entries(positionsRecord).find(([_, value]) => value?.id == (reactEvent.currentTarget as HTMLElement).id);
+		setChosenPieceId(reactEvent.currentTarget.id);
 		setValidMoves(highlightSquaresIdFromPiece({ columns, entry, positionsRecord, rows, player1Squad, turn: entry![1]!.squad }));
-		setActiveId(event.active.id as string);
 	}
 }
 
@@ -112,6 +142,8 @@ interface pieceData {
 	squad: string,
 	hidden?: boolean,
 	id: string
+	onClick?: MouseEventHandler
+	chosenPieceId?: string | null
 }
 
 export interface recordData {
@@ -162,9 +194,9 @@ function getPiecesSpecifics(preset: string[]): ({ pieceName: string, squad: stri
 	return piecesSpecifics;
 }
 
-function createPiece({ theme, pieceName, squad, id, hidden }: pieceData) {
+function createPiece({ theme, pieceName, squad, id, hidden, chosenPieceId = null, onClick }: pieceData) {
 	const isHidden = hidden ? { hidden: hidden } : null;
-	return <Piece theme={theme} pieceName={pieceName} squad={squad} id={id} {...isHidden} />;
+	return <Piece theme={theme} pieceName={pieceName} squad={squad} id={id} chosenPieceId={chosenPieceId} onClick={onClick} {...isHidden} />;
 }
 
 function createPositionsRecord({ piecesSpecifics, columns, rows }:

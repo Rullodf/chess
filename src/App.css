@@ -29,6 +29,7 @@
 	aspect-ratio: 1/1;
 	color: #9a0000;
 	display: flex;
+	overflow: hidden;
 }
 
 .white {
@@ -45,10 +46,16 @@
 	justify-content: center;
 }
 
+.chosen {
+	background-color: hsl(0 4% 50%) !important;
+}
+
 .piece,
+.piece:focus,
 .piece:host .piece:active {
 	background-color: transparent;
-	margin: 1px;
+	margin: 0;
+	border-radius: 0;
 	padding: 0;
 	border: none;
 	outline: none;

@@ -167,7 +167,7 @@ function pawnPossibleMoves({ rows, columns, positionsRecord: positionsTable, pie
 	const toReturn: string[] = [
 		...checkPawnPossibleMoves({ rows, columns, positionsRecord: positionsTable, pieceActualPosition, squad, player1Squad }),
 		...getPawnCaptureSquares({ rows, columns, positionsRecord: positionsTable, pieceActualPosition, squad, player1Squad })
-			.filter(value => positionsTable[value]?.squad != squad),
+			.filter(value => positionsTable[value] && positionsTable[value]?.squad != squad),
 	];
 	return toReturn;
 }
