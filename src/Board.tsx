@@ -13,6 +13,7 @@ export function Board({ preset, theme, columns, rows, player1Squad }: board) {
 	const [validMoves, setValidMoves] = useState({} as Record<string, true> | null);
 	const [activeId, setActiveId] = useState<string | null>();
 	const [chosenPieceId, setChosenPieceId] = useState<string | null>(null);
+	const [turnIndex, setTurnIndex] = useState<number>(0);
 	const sensors = useSensors(
 		useSensor(PointerSensor,
 			{
@@ -118,13 +119,16 @@ export function Board({ preset, theme, columns, rows, player1Squad }: board) {
 		setPositionRecord((prev) => ({ ...prev, [newPosition]: recordData, [oldPosition]: null }));
 		console.log(oldPosition + '->' + newPosition);
 		setValidMoves({});
+		setTurnIndex(prev => 1 - prev);
 	}
 
 	function handleClickOnPiece(reactEvent: React.MouseEvent<HTMLButtonElement>) {
-		reactEvent.stopPropagation();
 		const entry = Object.entries(positionsRecord).find(([_, value]) => value?.id == (reactEvent.currentTarget as HTMLElement).id);
-		setChosenPieceId(reactEvent.currentTarget.id);
-		setValidMoves(highlightSquaresIdFromPiece({ columns, entry, positionsRecord, rows, player1Squad, turn: entry![1]!.squad }));
+		if (entry?.[1]?.squad == colors[turnIndex]) {
+			reactEvent.stopPropagation();
+			setChosenPieceId(reactEvent.currentTarget.id);
+			setValidMoves(highlightSquaresIdFromPiece({ columns, entry, positionsRecord, rows, player1Squad, turn: entry![1]!.squad }));
+		}
 	}
 }
 
