@@ -1,7 +1,7 @@
 import { useDroppable } from '@dnd-kit/core';
 import type React from 'react';
 
-export function Square({ id, color, children, isAValidMove }: SquareProps) {
+export function Square({ id, color, children, isAValidMove, isOccupied }: SquareProps) {
 	const { setNodeRef, isOver } = useDroppable({
 		id: id,
 	});
@@ -15,7 +15,7 @@ export function Square({ id, color, children, isAValidMove }: SquareProps) {
 	return (
 		<div id={id} style={{ position: 'relative' }} ref={setNodeRef} className={color + ' square' + highlight}>
 			{children}
-			{isAValidMove && <div className="valid-highlight" />}
+			{isAValidMove && <div className={isOccupied ? 'capture-highlight' : 'valid-highlight'} />}
 		</div>
 	);
 }
@@ -25,4 +25,5 @@ interface SquareProps {
 	color: string,
 	children?: React.ReactNode,
 	isAValidMove: boolean | undefined,
+	isOccupied: boolean,
 }

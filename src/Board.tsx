@@ -24,7 +24,7 @@ export function Board({ preset, theme, columns, rows, player1Squad }: board) {
 							<div key={row} id={row} className="row">
 								{columns.map(column => {
 									const square = (
-										<Square key={column + row} id={column + row} color={colors[colorIndex]} isAValidMove={validMoves?.[column + row]}>
+										<Square key={column + row} id={column + row} color={colors[colorIndex]} isAValidMove={validMoves?.[column + row]} isOccupied={!!positionsRecord[column + row]}>
 											{
 												positionsRecord &&
 												positionsRecord[column + row] &&
@@ -88,6 +88,7 @@ export function Board({ preset, theme, columns, rows, player1Squad }: board) {
 		}
 		setPositionRecord((prev) => ({ ...prev, [newPosition]: recordData, [oldPosition]: null }));
 		console.log(oldPosition + '->' + newPosition);
+		setValidMoves({});
 	}
 
 	function handleDragStart(event: DragStartEvent) {
