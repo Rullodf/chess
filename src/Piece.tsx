@@ -9,7 +9,7 @@ export function Piece({ squad, pieceName, theme, id, hidden = false }: Props) {
 		top: 0,
 		left: 0,
 		cursor: isDragging ? 'grabbing' : 'grab',
-		zIndex: isDragging ? 1000 : undefined,
+		zIndex: isDragging ? 1000 : 1,
 		visibility: hidden ? 'hidden' : 'visible',
 	};
 

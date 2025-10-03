@@ -5,13 +5,12 @@ import { Piece } from './Piece';
 import { useState } from 'react';
 import { highlightSquaresIdFromPiece } from './GameRules';
 
-export function Board({ preset, theme }: board) {
+export function Board({ preset, theme, columns, rows, player1Squad }: board) {
 	const colors = ['white', 'black'];
 	let colorIndex = 0;
-	const columns = 'abcdefgh'.split('');
-	const rows = '12345678'.split('').reverse();
 	const piecesSpecifics = getPiecesSpecifics(preset);
-	const [positionsRecord, setPositionRecord] = useState(createPositionsRecord({ columns: columns, rows: rows, piecesSpecifics: piecesSpecifics }) as Record<string, recordData | null>);
+	const [positionsRecord, setPositionRecord] = useState(createPositionsRecord({ columns, rows, piecesSpecifics }) as Record<string, recordData | null>);
+	const [validMoves, setValidMoves] = useState({} as Record<string, true> | null);
 	const [activeId, setActiveId] = useState<string | null>();
 
 	let i = 0;
@@ -25,7 +24,7 @@ export function Board({ preset, theme }: board) {
 							<div key={row} id={row} className="row">
 								{columns.map(column => {
 									const square = (
-										<Square key={column + row} id={column + row} color={colors[colorIndex]}>
+										<Square key={column + row} id={column + row} color={colors[colorIndex]} isAValidMove={validMoves?.[column + row]}>
 											{
 												positionsRecord &&
 												positionsRecord[column + row] &&
@@ -84,20 +83,26 @@ export function Board({ preset, theme }: board) {
 		if (oldPosition == newPosition) {
 			return;
 		}
+		if (!validMoves?.[newPosition]) {
+			return;
+		}
 		setPositionRecord((prev) => ({ ...prev, [newPosition]: recordData, [oldPosition]: null }));
 		console.log(oldPosition + '->' + newPosition);
 	}
 
 	function handleDragStart(event: DragStartEvent) {
 		const entry = Object.entries(positionsRecord).find(([_, value]) => value?.id == event.active.id);
-		const highlighted = highlightSquaresIdFromPiece({ columns, entry, positionsRecord, rows });
+		setValidMoves(highlightSquaresIdFromPiece({ columns, entry, positionsRecord, rows, player1Squad }));
 		setActiveId(event.active.id as string);
 	}
 }
 
 interface board {
 	preset: string[],
-	theme: string
+	theme: string,
+	player1Squad: string,
+	rows: string[],
+	columns: string[]
 }
 
 interface pieceData {

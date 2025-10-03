@@ -2,8 +2,8 @@
 	margin: 0 auto;
 	padding: 2rem;
 	text-align: center;
-	height: 100vmin; 
-	width: 100vmin; 
+	height: 100vmin;
+	width: 100vmin;
 	display: flex;
 	align-items: center;
 }
@@ -39,7 +39,7 @@
 }
 
 .row {
-height: calc(100%/8);
+	height: calc(100%/8);
 	display: flex;
 	justify-content: center;
 }
@@ -58,6 +58,10 @@ height: calc(100%/8);
 .piece-svg {
 	width: 100%;
 	height: 100%;
+}
+
+.valid-highlight {
+	background-color: black;
 }
 
 .highlighted::after {
