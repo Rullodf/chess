@@ -1,9 +1,13 @@
+import { useState } from 'react';
 import './App.css';
 import { Board } from './Board';
+import { CurrentTurn } from './CurrentTurn';
 
 function App() {
-	const basePreset =
-		`
+	const colors = ['white', 'black'];
+	const [turnIndex, setTurnIndex] = useState<number>(0);
+	const numberOfPlayers = 2;
+	const basePreset = `
 			RNBKQBNR
 			PPPPPPPP
 			--------
@@ -13,8 +17,7 @@ function App() {
 			pppppppp
 			rnbkqbnr
 		`;
-	const testPreset =
-		`
+	const testPreset = `
 			--------
 			--------
 			--------
@@ -39,11 +42,17 @@ function App() {
 	}
 
 	return (
-
 		<>
-			<Board preset={preset} player1Squad={player1Squad} columns={columns} rows={rows} theme="default" />
+			<div className="game-container">
+				<Board preset={preset} player1Squad={player1Squad} columns={columns} rows={rows} theme="default" colors={colors} turn={colors[turnIndex]} nextTurn={nextTurn} />
+				<CurrentTurn turn={colors[turnIndex]} />
+			</div>
 		</>
 	);
+
+	function nextTurn() {
+		setTurnIndex((prev) => (prev + 1) % numberOfPlayers);
+	}
 }
 
 export default App;

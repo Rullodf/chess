@@ -1,4 +1,4 @@
-import { type recordData } from './Board';
+import type { recordData } from "./interfaces/board-interfaces";
 
 export function highlightSquaresIdFromPiece({ positionsRecord, columns, rows, entry, turn, player1Squad }: functionData): Record<string, true> | null {
 	const possibleMoves: Record<string, true> = {};

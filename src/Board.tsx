@@ -2,18 +2,17 @@ import { DndContext, DragOverlay, PointerSensor, pointerWithin, useSensor, useSe
 import { snapCenterToCursor } from '@dnd-kit/modifiers';
 import { Square } from './Square';
 import { Piece } from './Piece';
-import React, { useState, type MouseEventHandler } from 'react';
+import React, { useState } from 'react';
 import { highlightSquaresIdFromPiece } from './GameRules';
+import type { board, pieceData, recordData } from './interfaces/board-interfaces';
 
-export function Board({ preset, theme, columns, rows, player1Squad }: board) {
-	const colors = ['white', 'black'];
+export function Board({ preset, theme, columns, rows, player1Squad, colors, nextTurn, turn }: board) {
 	let colorIndex = 0;
 	const piecesSpecifics = getPiecesSpecifics(preset);
 	const [positionsRecord, setPositionRecord] = useState(createPositionsRecord({ columns, rows, piecesSpecifics }) as Record<string, recordData | null>);
 	const [validMoves, setValidMoves] = useState({} as Record<string, true> | null);
 	const [activeId, setActiveId] = useState<string | null>();
 	const [chosenPieceId, setChosenPieceId] = useState<string | null>(null);
-	const [turnIndex, setTurnIndex] = useState<number>(0);
 	const sensors = useSensors(
 		useSensor(PointerSensor,
 			{
@@ -119,41 +118,17 @@ export function Board({ preset, theme, columns, rows, player1Squad }: board) {
 		setPositionRecord((prev) => ({ ...prev, [newPosition]: recordData, [oldPosition]: null }));
 		console.log(oldPosition + '->' + newPosition);
 		setValidMoves({});
-		setTurnIndex(prev => 1 - prev);
+		nextTurn();
 	}
 
 	function handleClickOnPiece(reactEvent: React.MouseEvent<HTMLButtonElement>) {
 		const entry = Object.entries(positionsRecord).find(([_, value]) => value?.id == (reactEvent.currentTarget as HTMLElement).id);
-		if (entry?.[1]?.squad == colors[turnIndex]) {
+		if (entry?.[1]?.squad == turn) {
 			reactEvent.stopPropagation();
 			setChosenPieceId(reactEvent.currentTarget.id);
 			setValidMoves(highlightSquaresIdFromPiece({ columns, entry, positionsRecord, rows, player1Squad, turn: entry![1]!.squad }));
 		}
 	}
-}
-
-interface board {
-	preset: string[],
-	theme: string,
-	player1Squad: string,
-	rows: string[],
-	columns: string[]
-}
-
-interface pieceData {
-	theme: string,
-	pieceName: string,
-	squad: string,
-	hidden?: boolean,
-	id: string
-	onClick?: MouseEventHandler
-	chosenPieceId?: string | null
-}
-
-export interface recordData {
-	id: string,
-	pieceName: string,
-	squad: string
 }
 
 function getPiecesSpecifics(preset: string[]): ({ pieceName: string, squad: string } | null)[] {
